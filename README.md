@@ -10,8 +10,9 @@
 
 > #### **"종이책을 즐겨읽는 사용자를 위한 빅데이터 기반 도서 추천 및 독서 모임 서비스"<br/>**
 >
-> <b style="color:#555555">프로젝트 기간 : 2023.02.20 ~ 2023.04.07</b> </br>
-> <b style="color:#555555">리팩토링 기간 : 2023.11.01 ~ </b>
+> <b style="color:#555555">프로젝트 기간 : 2023.02.20 ~ 2023.04.07</b>
+> </br>
+> <b style="color:#555555">리팩토링 기간 : 2023.11.01 ~ (진행중 미완)</b>
 
 
 <br/>
@@ -45,6 +46,38 @@ _북돋움은 사용자의 행동을 기반으로 **개인 맞춤형 도서 추�
 <img style="margin:0 5px 0 0"src="https://img.shields.io/badge/rabbitmq-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white">
 <img style="margin:0 5px 0 0"src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white">
 </div>
+
+## 시스템 아키텍쳐
+
+<br>
+
+### 1. Monolithic To MSA
+서버의 다중화와 트래픽의 분산에 대해 공부하고자 기존의 서비스 구조를 MSA로 변경했습니다. <br>
+분산 시스템을 구축하고 운영하기 위해 SpringCloud의 기능들을 사용합니다. (DiscoveryService, APIGateway - LoadBalancer)
+
+<br>
+
+### 2. MQ Service
+MSA 구조의 각 마이크로 서비스는 독립적으로 실행되며 서로 통신하기 위해 이벤트 기반 메시징 시스템이 필요합니다. <br>
+
+<br>
+
+#### 2-1. RabbitMQ
+SpringCloud Config 서버에 등록된 각 마이크로 서비스의 설정 정보의 변경 사항을 일괄적으로 전달하기 위해 SpringCloud Bus를 사용했으며 이를 비동기적으로 BroadCasting하기 위해 RabbitMQ를 사용했습니다.
+
+#### 2-2. Apache Kafka
+Meeting_Service에서는 Comment_Service의 Comment 데이터가 필요합니다. Comment가 등록되었을 때, Apache Kafka Consumer를 통해 데이터를 Topic에 등록하고 Meeting_Service의 Kafka Connect Sink에 등록된 Comment Topic의 데이터를 가져옵니다.
+
+<br>
+
+
+### 이유
+대규모 트래픽
+
+
+## ERD
+
+## 
 
 <br/>
 <br/>
@@ -133,93 +166,6 @@ if sum(user_matrix) == 0:
 <br/>
 <br/>
 
----
-## 프로젝트 파일 구조 ✔
-### Backend
-```
-backend
-├─ Django
-│  ├─ books
-│  │  ├─ apps.py
-│  │  ├─ fixtures
-│  │  ├─ migrations
-│  │  ├─ models.py
-│  │  ├─ serializers.py
-│  │  ├─ tests.py
-│  │  ├─ urls.py
-│  │  └─ views.py
-│  ├─ data
-│  ├─ data_crawling.py
-│  ├─ manage.py
-│  └─new_books.json
-└─ SpringFramework
-  └── bookdodum
-      ├── config
-      ├── controller
-      ├── dto
-      |   ├── jwt
-      │   ├── request
-      │   │   ├── book
-      │   │   ├── meeting
-      │   │   └── user
-      │   ├── resposne
-      │   │   ├── api
-      │   │   ├── book
-      │   │   ├── meeting
-      │   │   ├── review
-      │   │   └── user
-      │   └── user
-      ├── entity
-      │   ├── book
-      │   ├── meeting
-      │   └── user
-      ├── repository
-      ├── security
-      │   └── common
-      ├── service
-      │   ├── api
-      │   ├── book
-      │   ├──meeting
-      │   └── user
-      └── util
-```
-
-### Frontend
-```
-frontend
-├─ .env
-└─ src
-   ├─ apis
-   ├─ App.tsx
-   ├─ Assets
-   ├─ Components
-   │  ├─ Common
-   │  └─ Contents
-   ├─ pages
-   │  ├─ Home
-   │  ├─ ImageConvertor
-   │  ├─ Intro
-   │  ├─ Isbn
-   │  ├─ Library
-   │  ├─ Login
-   │  ├─ Meeting
-   │  ├─ MeetingCreate
-   │  ├─ MeetingRoom
-   │  ├─ Mypage
-   │  ├─ ReadingBooks
-   │  ├─ RecommendList
-   │  ├─ Signup
-   │  ├─ Survey
-   │  └─ WriteText
-   ├─ Store
-   └─ Styles
-```
-
-
-<br/>
-<br/>
-<br/>
-<br/>
 
 ## 아키텍처 설계도
 
